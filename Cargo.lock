@@ -187,14 +187,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "exp-check"
-version = "0.1.0"
-dependencies = [
- "slog 2.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "sloggers 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "failure"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -741,6 +733,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "winapi-x86_64-pc-windows-gnu"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "xprs"
+version = "0.1.0"
+dependencies = [
+ "slog 2.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sloggers 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [metadata]
 "checksum adler32 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)" = "7e522997b529f05601e05166c07ed17789691f562762c7f3b987263d2dedee5c"

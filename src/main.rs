@@ -2,86 +2,80 @@
 extern crate slog;
 extern crate sloggers;
 
+use slog::Logger;
 use sloggers::Build;
 use sloggers::terminal::{TerminalLoggerBuilder, Destination};
 use sloggers::types::Severity;
 
 
-#[derive(Debug)]
-struct Rational {
-    numerator: f32,
-    denominator: f32
-}
-
+#[derive(Debug, Clone, Eq, PartialEq)]
 enum Operation {
     Root,
     Plus,
-    Minus
+    Minus,
+    Null
 }
 
+#[derive(Debug, Clone, Eq, PartialEq)]
 struct Expression {
     opr: Operation,
-    lhs: i32,
-    rhs: Box<Expression>
+    lhs: String,
+    rhs: Vec<Expression>
 }
 
-// fn prs(piece: &str) -> Result<(&str, String), &str> {
-//     let mut inpchar = piece.char_indices();
-//     let mut oper = String::new();
-//     let mut tokens: Vec<&str> = Vec::new();
+impl Expression {
+    fn new(input: &str, logger: &Logger) -> Expression {
 
-//     // check for empty or start of expression
-//     match inpchar.next() {
-//         Some((idx, next)) if next == '(' => prs(&piece[idx..]),
-//         _ => Err(piece)
-//     }
+        let op: Operation = set_operator(input, logger);
 
-    
-//     // while let Some(next) = inpchar.next() {
-//     //     match next {
-//     //         '√' => Operation::Root,
-//     //         '+' => Operation::Plus,
-//     //         '-' => Operation::Minus,
-//     //         _ => return Err(piece)
-//     //     };
-//     // }
+        Expression {
+            opr: op,
+            lhs: input['a'.len_utf8()..].to_string(),
+            rhs: vec![]
+        }
+    }
+}
 
-//     Ok((&piece[..], oper))
-// }
+fn set_operator(input: &str, logger: &Logger) -> Operation {
+    let opr: Operation = match input.chars().next() {
+        Some(next) => {
+            match next {
+                '√' => Operation::Root,
+                '+' => Operation::Plus,
+                '-' => Operation::Minus,
+                _ => {
+                    error!(logger, "Operation error: cannot parse given operator.");
+                    Operation::Null
+                }
+            }
+        },
+        _ => {
+            error!(logger, "Operator err: no operator given.");
+            Operation::Null
+        }
+    };
+    opr
+} 
 
-// fn prs(piece: &str) -> Result<(Vec<String>, &str), &str> {
-//     let mut builder = TerminalLoggerBuilder::new();
-//     builder.level(Severity::Debug);
-//     builder.destination(Destination::Stderr);
 
-//     let logger = builder.build().unwrap();
 
-//     let mut expr_chunk = Vec::new();
-//     let mut inpchar = piece.chars();
-
-//     let mut current_token = String::new();
-
-//     match inpchar.next() {
-//         Some(next) => Operation::root
-        
-//         Some(next) if next == '(' => return Ok(inpc),
-//         Some(next) if next == ' ' => current_token.push(inpchar.next()),
-//         _ => return Err(piece),
-//     }
-
-//     while let Some(next) = inpchar.next() {
-//         // println!("next {:?}", next);
-//         if next == ')' || next == ' ' {
-//             break;
-//         } else {
-//             expr_chunk.push(next)
-//         }
-//     }
-//     let next_idx = expr_chunk.len();
-//     debug!(logger, "next idx: {:?}", next_idx);
-    
-//     Ok((expr_chunk, piece))
-// }
+fn expr_builder(inp: &str, logger: &Logger) -> Result<Expression, String> {
+    match inp.chars().next() {
+        Some('(') => {
+            let rest = &inp['('.len_utf8()..];
+            let exp = Expression::new(rest, logger);
+            Ok(exp)
+        },
+        Some(')') => {
+            debug!(logger, "end of the line");
+            Err("end of the line".to_string())
+        },
+        _ => {
+            debug!(logger, "missing stuff");
+            Err("missing stuff".to_string())
+        }
+    }
+}
 
 fn main() {
     let mut builder = TerminalLoggerBuilder::new();
@@ -90,9 +84,9 @@ fn main() {
 
     let logger = builder.build().unwrap();
 
-    // let inp: &str = "(+ 8 3)";
+    let xp = expr_builder("(+ 8 3)", &logger);
+    let expected: Expression = Expression { opr: Operation::Plus, lhs: String::from(" 8 3)"), rhs: vec![] };
 
-    // let x = prs(inp);
-    info!(logger, "yo: {:?}", x);
-    // println!("x {:?}", x);
+    debug!(logger, "expression {:?}", xp);
+    assert_eq!(Ok(expected), xp)
 }

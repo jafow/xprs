@@ -1,5 +1,5 @@
 [package]
-name = "exp-check"
+name = "xprs"
 version = "0.1.0"
 authors = ["jaredfowler <jared.a.fowler@gmail.com>"]
 edition = "2018"
